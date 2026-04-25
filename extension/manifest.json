@@ -1,0 +1,46 @@
+{
+  "name": "Phishing Radar",
+  "description": "Extension to detect phishing on emails",
+  "version": "1.0",
+  "manifest_version": 3,
+  "host_permissions": [
+    "https://mail.google.com/*",
+    "https://outlook.live.com/*"
+  ],
+  "oauth2": {
+    "client_id": "974012168916-oqjargugua54n0d87lsqnv3a5oe4u4sg.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/gmail.readonly"
+    ]
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting",
+    "identity",
+    "tabs"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "128": "icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://mail.google.com/*",
+        "https://outlook.live.com/*"
+      ],
+      "js": [
+        "contentScript.js"
+      ]
+    }
+  ],
+  "icons": {
+    "128": "icon128.png"
+  }
+}
