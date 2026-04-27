@@ -1,18 +1,29 @@
-import json
+import os
 
-from ollama import ChatResponse, chat
 from starlette.middleware.cors import CORSMiddleware
 
-from EmailInput import EmailInput
-from fastapi import FastAPI, HTTPException
+from backend.EmailInput import EmailInput
+from fastapi import FastAPI, HTTPException, Header
 
-from AnalysisOutput import AnalysisOutput
+from groq import Groq
+from dotenv import load_dotenv
+
+from backend.adapters.GroqAdapter import GroqAdapter
+from backend.auth import get_auth_token
+from backend.llm_factory import create_llm_client
+from backend.services import analyze_email
+
+load_dotenv()
 
 app = FastAPI()
 
 origins = [
     "http://localhost:5173",
+    "chrome-extension://pemkjkpcompkmpocoipmpgibpaedpfhd"
 ]
+
+adapter = create_llm_client()
+model = os.environ.get("AI_MODEL")
 
 app.add_middleware(
     CORSMiddleware,
@@ -22,21 +33,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.post("/analysis")
-async def analysis(email_input: EmailInput):
-    response: ChatResponse = chat(
-        model='llama3.2', messages=[
-            {"role": "system",
-             "content": "You are a phishing analyzer."
-                        " Analyze the sender, subject, and body of the email and determine if it is phishing. "
-                        "Respond only in JSON with the following fields: {is_a_threat: bool, explanation: str, signals: list[str], "
-                        " official_email: str}. Do not write anything other than the JSON. If no official email exists, set to null. "
-                        " Always respond in English."},
-            {"role": "user", "content": f"{email_input.email}\n{email_input.subject}\n{email_input.body}\n"},
-        ])
-    try:
-        ai_response = json.loads(response.message.content)
-        return AnalysisOutput(**ai_response)
-    except json.decoder.JSONDecodeError:
-        print("You need to try again")
-        raise HTTPException(status_code=500, detail="You need to try again")
+async def analysis(email_input: EmailInput, x_token: str = Header(None)):
+    auth_token = get_auth_token(x_token)
+    if auth_token:
+        try:
+            ai_response = analyze_email(email_input, adapter, model)
+            return ai_response
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    else:
+        raise HTTPException(status_code=401, detail="Invalid Token")
