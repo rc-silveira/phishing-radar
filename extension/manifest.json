@@ -4,9 +4,7 @@
   "version": "1.0",
   "manifest_version": 3,
   "host_permissions": [
-    "https://mail.google.com/*",
-    "https://outlook.live.com/*"
-  ],
+    "https://mail.google.com/*"],
   "oauth2": {
     "client_id": "974012168916-oqjargugua54n0d87lsqnv3a5oe4u4sg.apps.googleusercontent.com",
     "scopes": [
@@ -32,9 +30,7 @@
   "content_scripts": [
     {
       "matches": [
-        "https://mail.google.com/*",
-        "https://outlook.live.com/*"
-      ],
+        "https://mail.google.com/*"],
       "js": [
         "contentScript.js"
       ]
