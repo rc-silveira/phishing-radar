@@ -44,6 +44,11 @@ async function analyseEmail(threadId, tabId) {
             body: JSON.stringify({ email: from, subject: subject, body: body })
         });
 
+        if (!analysisResponse.ok) {
+            chrome.tabs.sendMessage(tabId, { error: "Analysis failed" });
+            return;
+        }
+
         const analysis = await analysisResponse.json();
         chrome.tabs.sendMessage(tabId, { analysis: analysis });
 
