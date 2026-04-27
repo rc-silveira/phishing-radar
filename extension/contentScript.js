@@ -6,9 +6,9 @@ function callback() {
         currentUrl = window.location.href
         if (window.location.hash.includes('/')) {
             setTimeout(() => {
-            const threadId = document.querySelector('h2[data-legacy-thread-id]')?.getAttribute('data-legacy-thread-id')
-            chrome.runtime.sendMessage({ threadId: threadId })
-        }, 2000)
+                const threadId = document.querySelector('h2[data-legacy-thread-id]')?.getAttribute('data-legacy-thread-id')
+                chrome.runtime.sendMessage({ threadId: threadId })
+            }, 2000)
         }
     }
 }
@@ -71,6 +71,16 @@ chrome.runtime.onMessage.addListener(function (message) {
         banner.appendChild(btns)
         el.appendChild(banner)
         el.appendChild(detailsDiv)
+        document.body.appendChild(el)
+    }
+    if (message.error) {
+        const el = document.createElement("div")
+        el.style.cssText = `
+        position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+        background-color: #f29900; color: white; padding: 12px 20px;
+        font-family: Arial, sans-serif; font-size: 14px;
+    `
+        el.textContent = "🛠️ Fixing some issues..."
         document.body.appendChild(el)
     }
 })

@@ -1,3 +1,5 @@
+const BACKEND_URL = "http://127.0.0.1:8000"
+
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     const threadId = message.threadId;
     const tabId = sender.tab.id;
@@ -22,7 +24,7 @@ async function analyseEmail(threadId, tabId) {
     const url = `https://gmail.googleapis.com/gmail/v1/users/me/threads/${threadId}`;
     try {
         const response = await fetch(url, {
-            headers: { "Authorization": "Bearer " + token }
+            headers: { "Authorization": "Bearer " + token}
         });
 
         if (!response.ok) {
@@ -36,9 +38,9 @@ async function analyseEmail(threadId, tabId) {
         const subject = headers.find(h => h.name === "Subject").value;
         const body = data.messages[0].snippet;
 
-        const analysisResponse = await fetch("http://127.0.0.1:8000/analysis", {
+        const analysisResponse = await fetch(`${BACKEND_URL}/analysis`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", "x-token": token},
             body: JSON.stringify({ email: from, subject: subject, body: body })
         });
 
@@ -47,5 +49,6 @@ async function analyseEmail(threadId, tabId) {
 
     } catch (error) {
         console.error(error);
+        chrome.tabs.sendMessage(tabId, {error: error});
     }
 }
