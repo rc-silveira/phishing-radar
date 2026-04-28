@@ -36,7 +36,9 @@ async function analyseEmail(threadId, tabId) {
         const headers = data.messages[0].payload.headers;
         const from = headers.find(h => h.name === "From").value;
         const subject = headers.find(h => h.name === "Subject").value;
-        const body = data.messages[0].snippet;
+        const payload = data.messages[0].payload;
+        const encoded = payload.body.data || payload.parts[0].body.data;
+        const body = atob(encoded.replace(/-/g, '+').replace(/_/g, '/'));
 
         const analysisResponse = await fetch(`${BACKEND_URL}/analysis`, {
             method: "POST",
