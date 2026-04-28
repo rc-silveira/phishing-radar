@@ -15,7 +15,7 @@ def analyze_email(email_input: EmailInput, llm_client: LlmClient, ai_model: str)
                     "Respond only in JSON with the following fields: {is_a_threat: bool, explanation: str, signals: list[str], "
                     " official_email: str}. Do not write anything other than the JSON. If no official email exists, set to null. "
                     " Always respond in English."},
-        {"role": "user", "content": f"{email_input.email}\n{email_input.subject}\n{email_input.body}\n"},
+        {"role": "user", "content": f"{email_input.email}\n{email_input.subject}\n{email_input.body[:3000]}\n"},
     ]
     ai_client_response = llm_client.client_communication(message, ai_model)
     try:
